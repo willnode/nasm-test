@@ -48,30 +48,24 @@ section .text
     global main_asm_v2_redox
 
 ; =========================================================================
-; This is our reusable "asmsysvicall6" simulation.
+; This is our reusable "asmsysvicall6" simulation, closely match the provided Go assembly.
 ; It expects a pointer to the libcall_s struct in RDI.
-; It unpacks the struct, places arguments into the correct registers
-; for the System V AMD64 ABI, and calls the target function.
-; It currently supports up to 3 arguments.
+; It unpacks the struct, unconditionally loads up to 6 arguments into
+; registers, and calls the target function.
 asmsysvicall6:
     mov rax, [rdi + 0]  ; Get libcall.fn into rax (the function to call)
-    mov rcx, [rdi + 8]  ; Get libcall.n (number of arguments)
     mov r11, [rdi + 16] ; Get libcall.args (pointer to argument array)
 
-    ; Load arguments into registers based on count.
-    ; ABI: RDI, RSI, RDX, RCX, R8, R9
-    cmp rcx, 0
-    je .do_call
-    mov rdi, [r11 + 0]
-    cmp rcx, 1
-    je .do_call
-    mov rsi, [r11 + 8]
-    cmp rcx, 2
-    je .do_call
-    mov rdx, [r11 + 16]
-    ; Extend here for more args if needed.
+    ; Unconditionally load the 6 arguments into the correct registers
+    ; for the System V AMD64 ABI. The C functions will ignore any
+    ; registers they don't need.
+    mov rdi, [r11 + 0]  ; Arg 1
+    mov rsi, [r11 + 8]  ; Arg 2
+    mov rdx, [r11 + 16] ; Arg 3
+    mov rcx, [r11 + 24] ; Arg 4
+    mov r8,  [r11 + 32] ; Arg 5
+    mov r9,  [r11 + 40] ; Arg 6
 
-.do_call:
     call rax  ; Call the actual libc function
     ret
 ; =========================================================================
