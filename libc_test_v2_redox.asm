@@ -1,5 +1,5 @@
 ; This assembly file simulates the Go `sysvicall` convention
-; for calling various libc functions on Linux.
+; for calling various libc functions on Redox.
 
 extern stat
 extern printf
@@ -10,7 +10,7 @@ extern close
 
 section .data
     ; --- General Messages ---
-    section_header db "--- Go-style v2 Test (Linux) ---", 10
+    section_header db "--- Go-style v2 Test (Redox) ---", 10
     header_len equ $ - section_header
 
     ; --- Test 1: Write ---
@@ -45,7 +45,7 @@ section .bss
     libcall_s resq 3 ; fn, n, args
 
 section .text
-    global main_asm_v2_linux
+    global main_asm_v2_redox
 
 ; =========================================================================
 ; This is our reusable "asmsysvicall6" simulation.
@@ -76,8 +76,8 @@ asmsysvicall6:
     ret
 ; =========================================================================
 
-; Entry point for the v2 Linux assembly code.
-main_asm_v2_linux:
+; Entry point for the v2 Redox assembly code.
+main_asm_v2_redox:
     push rbp
     mov rbp, rsp
     sub rsp, 8 ; Reserve 8 bytes on stack for the file descriptor
