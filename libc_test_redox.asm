@@ -66,7 +66,7 @@ main_asm_redox:
     mov rsi, [stat_buf + 88] ; Move the 8-byte timestamp into rsi
     mov rax, 0               ; No floating point arguments for printf
     call printf
-    jmp .done
+    jmp .after_stat
 
 .stat_failed:
     ; Stat failed
@@ -103,7 +103,7 @@ main_asm_redox:
     mov rsi, [random_buf]
     mov rax, 0
     call printf
-    jmp .after_stat
+    jmp .done
 
 .urandom_open_failed:
     mov rdi, 1
