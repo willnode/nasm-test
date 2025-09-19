@@ -66,7 +66,7 @@ main_asm_linux:
     mov rsi, [stat_buf + 88] ; Move the 8-byte timestamp into rsi
     mov rax, 0               ; No floating point arguments for printf
     call printf
-    jmp .done
+    jmp .after_stat
 
 .stat_failed:
     ; Stat failed

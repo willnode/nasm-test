@@ -103,7 +103,7 @@ main_asm_redox:
     mov rsi, [random_buf]
     mov rax, 0
     call printf
-    jmp .done
+    jmp .after_stat
 
 .urandom_open_failed:
     mov rdi, 1
