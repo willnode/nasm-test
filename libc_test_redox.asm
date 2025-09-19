@@ -32,10 +32,10 @@ section .bss
     random_buf resb 8
 
 section .text
-    global main_asm_linux
+    global main_asm_redox
 
 ; Entry point for the Linux-specific assembly code.
-main_asm_linux:
+main_asm_redox:
     push rbp
     mov rbp, rsp
 
