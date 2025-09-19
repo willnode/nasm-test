@@ -3,6 +3,7 @@
 # Compiler and Assembler
 CC = gcc
 ASM = nasm
+UNAME := $(shell uname)
 
 # Compiler and Assembler flags
 ASMFLAGS = -f elf64
@@ -14,8 +15,7 @@ OBJS = main.o libc_test_linux.o
 # If 'REDOX=1' is passed to make, switch to Redox-specific configuration.
 # This defines the '__redox__' macro for the C compiler and changes the
 # object file that will be linked.
-ifdef REDOX
-    CFLAGS += -D__redox__
+ifeq ($(UNAME), Redox)
     OBJS = main.o libc_test_redox.o
 endif
 

@@ -16,6 +16,7 @@ section .data
     stat_ok_len equ $ - stat_ok_msg
     stat_fail_msg db "stat call for '/' failed.", 10
     stat_fail_len equ $ - stat_fail_msg
+    mtime_msg db "'/' modification time (Unix timestamp): %lu", 10, 0 ; Format for printf
 
     urandom_path db "/dev/urandom", 0 ; Path to the random number generator device file.
     urandom_open_fail_msg db "Failed to open /dev/urandom", 10
@@ -53,12 +54,19 @@ main_asm_linux:
     cmp rax, 0
     jne .stat_failed
 
-    ; Stat succeeded
+    ; --- Stat succeeded ---
     mov rdi, 1
     mov rsi, stat_ok_msg
     mov rdx, stat_ok_len
     call write
-    jmp .after_stat
+
+    ; Now, print the modification time.
+    ; stat struct, st_mtim.tv_sec is at offset 88.
+    mov rdi, mtime_msg
+    mov rsi, [stat_buf + 88] ; Move the 8-byte timestamp into rsi
+    mov rax, 0               ; No floating point arguments for printf
+    call printf
+    jmp .done
 
 .stat_failed:
     ; Stat failed
