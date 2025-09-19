@@ -1,22 +1,25 @@
 # This Makefile conditionally compiles and links platform-specific assembly.
 
+# Get the operating system name
+UNAME := $(shell uname)
+
 # Compiler and Assembler
 CC = gcc
 ASM = nasm
-UNAME := $(shell uname)
 
 # Compiler and Assembler flags
 ASMFLAGS = -f elf64
 CFLAGS = -fPIE
 
-# Default to Linux objects
-OBJS = main.o libc_test_linux.o
+# Default to Linux objects, and then check if we are on Redox.
+OBJS = main.o libc_test_linux.o libc_test_v2_linux.o
+TARGET_ASM = libc_test_linux.o libc_test_v2_linux.o
 
-# If 'REDOX=1' is passed to make, switch to Redox-specific configuration.
-# This defines the '__redox__' macro for the C compiler and changes the
-# object file that will be linked.
+# If the OS is Redox, switch to the Redox-specific configuration.
 ifeq ($(UNAME), Redox)
-    OBJS = main.o libc_test_redox.o
+    CFLAGS += -D__redox__
+    OBJS = main.o libc_test_redox.o libc_test_v2_redox.o
+    TARGET_ASM = libc_test_redox.o libc_test_v2_redox.o
 endif
 
 # Target executable name
@@ -41,16 +44,19 @@ libc_test_linux.o: libc_test_linux.asm
 libc_test_redox.o: libc_test_redox.asm
 	$(ASM) $(ASMFLAGS) -o libc_test_redox.o libc_test_redox.asm
 
+# Rule to assemble the v2 Linux ASM source
+libc_test_v2_linux.o: libc_test_v2_linux.asm
+	$(ASM) $(ASMFLAGS) -o libc_test_v2_linux.o libc_test_v2_linux.asm
+
+# Rule to assemble the v2 Redox ASM source
+libc_test_v2_redox.o: libc_test_v2_redox.asm
+	$(ASM) $(ASMFLAGS) -o libc_test_v2_redox.o libc_test_v2_redox.asm
+
+
 # Rule to clean up build files
 clean:
 	rm -f $(TARGET) *.o
 
-# Rule to run the default (Linux) version
+# Rule to run the executable for the current platform
 run: all
 	./$(TARGET)
-
-# A convenience rule to build and run the Redox version
-run-redox:
-	$(MAKE) clean
-	$(MAKE) REDOX=1 run
-
